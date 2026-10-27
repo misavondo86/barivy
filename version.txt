@@ -1,0 +1,8 @@
+1.0
+https://github.com/misavondo86/barivy/releases/download/v1.0/BarivySetup.exe
+Barivy 1.0: first public release
+Free + Pro with license key
+Installer: per-user, no admin, Start Menu, uninstall via Settings
+Logo: gold lowercase b, tray + license dialog + app icon
+License dialog: modern look, Barivy logo badge
+Update check: manual for Free, daily auto for Pro
