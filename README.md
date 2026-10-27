@@ -12,3 +12,5 @@ notch concept.
 
 Download Barivy from the Releases page.
 Requirements: Windows 10/11 64-bit, .NET 10 Desktop Runtime.
+
+Also available on itch.io (free download mirror): https://misavondo.itch.io/barivy
