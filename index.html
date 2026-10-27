@@ -1,0 +1,1485 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content="Barivy is a dynamic notch for Windows — music with synced lyrics, todo deadlines, a file shelf, color tools, and notes, living at the top of your screen." />
+    <link rel="icon" href="data:," />
+    <title>Barivy — A dynamic notch for Windows</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --gold: #d2a679;
+        --gold-strong: #b98a58;
+        --notch: #111111;
+        --bg: #f6f4ef;
+        --surface: #ffffff;
+        --surface-2: #efece5;
+        --ink: #1b1712;
+        --muted: #6d6357;
+        --line: #e0d9cd;
+        --on-dark: #f4eee3;
+        --on-dark-muted: #b3a893;
+        --dark-section: #14120e;
+        --radius: 18px;
+        color-scheme: light dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f0e0c;
+          --surface: #171512;
+          --surface-2: #1e1b17;
+          --ink: #f4eee3;
+          --muted: #ada191;
+          --line: #2c2822;
+          --dark-section: #0a0908;
+        }
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+        font-size: 16.5px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+      .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+      .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+      a { color: inherit; }
+
+      /* ---------- nav ---------- */
+      nav {
+        position: sticky; top: 0; z-index: 50;
+        background: var(--bg);
+        border-bottom: 1px solid var(--line);
+      }
+      .nav-in { display: flex; align-items: center; gap: 28px; height: 62px; }
+      .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 800; font-size: 20px; letter-spacing: -0.02em; }
+      .brand-mark {
+        width: 34px; height: 34px; border-radius: 9px; background: var(--notch);
+        display: grid; place-items: center; flex: none;
+      }
+      .nav-links { display: flex; gap: 26px; margin-left: auto; align-items: center; }
+      .nav-links a { text-decoration: none; color: var(--muted); font-weight: 600; font-size: 15px; }
+      .nav-links a:hover { color: var(--ink); }
+      .nav-links a.btn { color: #1a1409; }
+      @media (max-width: 720px) { .nav-links a:not(.btn) { display: none; } }
+
+      .btn {
+        display: inline-flex; align-items: center; gap: 9px;
+        background: var(--gold); color: #1a1409 !important;
+        font-weight: 700; font-size: 15.5px; text-decoration: none;
+        padding: 11px 22px; border-radius: 999px; border: 1px solid transparent;
+        cursor: pointer; font-family: inherit;
+      }
+      .btn:hover { background: var(--gold-strong); }
+      .btn.big { padding: 15px 32px; font-size: 17px; }
+      .btn.ghost {
+        background: transparent; color: var(--ink) !important;
+        border-color: var(--line);
+      }
+      .btn.ghost:hover { border-color: var(--gold-strong); background: transparent; }
+
+      /* ---------- hero ---------- */
+      .hero { text-align: center; padding: 76px 0 10px; }
+      .os-badges { display: inline-flex; gap: 8px; margin-bottom: 26px; flex-wrap: wrap; justify-content: center; }
+      .os-badges span {
+        font-size: 13px; font-weight: 700; letter-spacing: 0.04em;
+        border: 1px solid var(--line); border-radius: 999px; padding: 5px 14px;
+        color: var(--muted); background: var(--surface);
+      }
+      .hero h1 {
+        font-size: clamp(38px, 6vw, 62px); line-height: 1.08;
+        letter-spacing: -0.03em; font-weight: 800; margin: 0 auto 22px; max-width: 820px;
+      }
+      .hero p.lede { max-width: 640px; margin: 0 auto 34px; color: var(--muted); font-size: 18.5px; }
+      .hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+      .hero-meta { margin-top: 20px; font-size: 13.5px; color: var(--muted); }
+      .hero-meta .mono { font-size: 12.5px; }
+
+      /* ---------- desktop demo ---------- */
+      .demo { padding: 44px 0 8px; }
+      .desktop {
+        position: relative; border-radius: 22px; overflow: hidden;
+        aspect-ratio: 16 / 9.4; min-height: 480px;
+        background:
+          radial-gradient(1100px 500px at 85% -10%, rgba(210,166,121,.45), transparent 60%),
+          radial-gradient(900px 600px at -10% 110%, rgba(64,110,120,.55), transparent 60%),
+          linear-gradient(160deg, #233240 0%, #17222e 45%, #10151d 100%);
+        box-shadow: 0 30px 70px rgba(10, 8, 4, .35);
+      }
+      .desktop .wallpaper-note {
+        position: absolute; left: 22px; bottom: 52px; color: rgba(255,255,255,.55);
+        font-size: 12.5px; font-weight: 600; letter-spacing: .02em;
+      }
+      .taskbar {
+        position: absolute; left: 0; right: 0; bottom: 0; height: 38px;
+        background: rgba(12,12,14,.82); display: flex; align-items: center;
+        padding: 0 14px; gap: 14px; color: #cfc8ba; font-size: 12px;
+      }
+      .taskbar .tb-icons { display: flex; gap: 12px; margin: 0 auto; }
+      .taskbar .tb-dot { width: 17px; height: 17px; border-radius: 4px; background: rgba(255,255,255,.16); }
+      .taskbar .tb-dot.gold { background: var(--gold); }
+      /* the notch itself — styled after the real Barivy app: near-black #111,
+         white text, Segoe UI, rounded bottom corners only, edge-arrow paging */
+      .notch {
+        --acc: #d2a679;
+        position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+        width: 204px; height: 40px; background: #111111; color: #fff;
+        font-family: "Segoe UI", "Segoe UI Variable Text", system-ui, sans-serif;
+        border-radius: 0 0 20px 20px; overflow: hidden; cursor: pointer;
+        transition: width .38s cubic-bezier(.65,0,.35,1), height .38s cubic-bezier(.65,0,.35,1), border-radius .38s, background-color .3s;
+        box-shadow: 0 14px 34px rgba(0,0,0,.45);
+        z-index: 5;
+      }
+      .notch button, .notch input, .notch textarea { font-family: inherit; }
+      .notch.open { width: min(380px, 94%); height: 214px; border-radius: 0 0 24px 24px; cursor: default; }
+      /* only Music with lyrics ON is wide — every other page, Color Picker
+         included, uses the narrower compact width */
+      .notch.open[data-page="music"][data-lyrics="on"] { width: min(600px, 94%); }
+      /* dynamic height per page, like the real app: most pages are short,
+         Color Picker is the tall one, the collapsed pill stays a small pill */
+      .notch.open[data-page="music"] { height: 214px; }
+      .notch.open[data-page="todo"] { height: 258px; }
+      .notch.open[data-page="shelf"] { height: 160px; }
+      .notch.open[data-page="colors"] { height: 376px; }
+      .notch.open[data-page="palette"] { height: 302px; }
+      .notch.open[data-page="imgpal"] { height: 120px; }
+      .notch.open[data-page="notes"] { height: 196px; }
+      /* Music with lyrics off: no lyrics column at all, just the player,
+         at the same narrow width as every other page */
+      .notch[data-lyrics="off"] .music-grid { grid-template-columns: 1fr; }
+      .notch[data-lyrics="off"] .lyrics { display: none; }
+      .notch[data-bg="translucent"], .notch[data-bg="ta-music"], .notch[data-bg="ta-all"] {
+        background-color: rgba(17,17,17,.62);
+        backdrop-filter: blur(12px) saturate(1.25); -webkit-backdrop-filter: blur(12px) saturate(1.25);
+      }
+      .notch[data-bg="aurora-all"], .notch[data-bg="ta-all"],
+      .notch[data-bg="aurora-music"][data-page="music"], .notch[data-bg="ta-music"][data-page="music"] {
+        background-image: radial-gradient(330px 210px at 10% -12%, rgba(210,166,121,.42), transparent 62%), radial-gradient(350px 250px at 96% 118%, rgba(90,140,160,.38), transparent 62%);
+      }
+      .pill {
+        height: 40px; display: flex; align-items: center; justify-content: center; gap: 10px;
+        padding: 0 16px; font-size: 13.5px; white-space: nowrap; overflow: hidden;
+        width: 100%; background: transparent; border: 0; color: inherit; cursor: pointer;
+        -webkit-appearance: none; appearance: none;
+        transition: height .38s cubic-bezier(.65,0,.35,1), opacity .18s, visibility .18s;
+      }
+      .pill:focus-visible { outline: 2px solid var(--acc); outline-offset: -2px; }
+      .notch.open .pill { height: 0; opacity: 0; visibility: hidden; }
+      .pill .pdot { width: 8px; height: 8px; border-radius: 50%; background: #fff; flex: none; }
+      .playing .pill .pdot { background: var(--acc); }
+      .pill .ptime { font-weight: 600; letter-spacing: .01em; }
+      .pill .pwx { display: inline-flex; align-items: center; gap: 5px; color: #d9d9d9; font-weight: 600; }
+      .notch-body {
+        position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+        opacity: 0; visibility: hidden; transition: opacity .25s, visibility .25s;
+        padding: 12px 34px 14px; pointer-events: none;
+        overflow-y: auto; scrollbar-width: none;
+      }
+      .notch-body::-webkit-scrollbar { display: none; }
+      .notch.open .notch-body { opacity: 1; visibility: visible; pointer-events: auto; transition-delay: .12s; }
+      .notch-nav {
+        position: absolute; top: 50%; transform: translateY(-50%); z-index: 6;
+        width: 28px; height: 44px; display: grid; place-items: center;
+        background: transparent; border: 0; color: #fff; cursor: pointer; padding: 0;
+        opacity: 0; visibility: hidden; transition: opacity .25s, visibility .25s;
+      }
+      .notch.open .notch-nav { opacity: .92; visibility: visible; transition-delay: .12s; }
+      .notch-nav:hover { opacity: 1; }
+      .notch-nav.prev { left: 3px; }
+      .notch-nav.next { right: 3px; }
+      .page { display: none; }
+      .page.on { display: block; }
+      .page-head { display: flex; align-items: center; gap: 9px; margin-bottom: 11px; min-height: 27px; }
+      .page-head h4 { margin: 0; font-size: 15px; font-weight: 600; letter-spacing: .01em; }
+      .page-head .sp { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+      .page-head .status { color: #a3a3a3; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+      .hbtn {
+        background: #2c2c2c; color: #f0f0f0; border: 0; cursor: pointer;
+        font-size: 12.5px; font-weight: 600; padding: 6px 14px; border-radius: 999px; white-space: nowrap;
+        display: inline-flex; align-items: center; gap: 6px;
+      }
+      .hbtn:hover { background: #3a3a3a; }
+      .hbtn.white { background: #fff; color: #111; }
+      .hbtn.white:hover { background: #e8e8e8; }
+      .dark-input {
+        background: #232323; border: 1px solid rgba(255,255,255,.05); border-radius: 11px;
+        color: #f2f2f2; font-size: 13px; padding: 9px 13px; outline: none; min-width: 0;
+      }
+      .dark-input::placeholder { color: #7d7d7d; }
+      /* music page */
+      .music-grid { display: grid; grid-template-columns: 224px 1fr; padding-top: 6px; }
+      @media (max-width: 560px) { .music-grid { grid-template-columns: 1fr; } .lyrics { display: none; } }
+      .music-top { display: flex; align-items: center; gap: 12px; }
+      .artwork {
+        width: 58px; height: 58px; border-radius: 13px; flex: none;
+        background:
+          radial-gradient(44px 44px at 28% 22%, rgba(255, 214, 165, .95), transparent 70%),
+          radial-gradient(52px 52px at 85% 90%, rgba(90, 140, 160, .85), transparent 70%),
+          linear-gradient(140deg, #3a2c1c, #1d2733);
+        position: relative; overflow: hidden;
+      }
+      .track-title { font-weight: 700; font-size: 15.5px; line-height: 1.25; }
+      .track-artist { color: #a3a3a3; font-size: 12.5px; margin-top: 2px; }
+      .progress-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
+      .progress-row .pt { font-size: 11.5px; color: #d9d9d9; min-width: 27px; }
+      .progress-row .pt:last-child { text-align: right; }
+      .progress { flex: 1; height: 4px; border-radius: 4px; background: rgba(255,255,255,.22); position: relative; cursor: pointer; }
+      .progress i { position: absolute; inset: 0 auto 0 0; width: 0%; background: #fff; border-radius: 4px; }
+      .progress i::after {
+        content: ""; position: absolute; right: -6px; top: 50%; transform: translateY(-50%);
+        width: 12px; height: 12px; border-radius: 50%; background: #fff;
+      }
+      .times { display: flex; justify-content: space-between; font-size: 11px; color: #a3a3a3; }
+      .transport { display: flex; align-items: center; gap: 4px; margin-top: 13px; }
+      .transport button {
+        background: transparent; border: 0; color: #fff; cursor: pointer;
+        width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; padding: 0;
+      }
+      .transport button:hover { background: rgba(255,255,255,.09); }
+      .transport button.play { background: #fff; color: #111; width: 43px; height: 43px; margin: 0 3px; }
+      .transport button.play:hover { background: #e8e8e8; }
+      .transport button.tgl { color: #8f8f8f; }
+      .transport button.tgl.on { color: #fff; }
+      .transport button.mic { color: #8f8f8f; }
+      .transport button.mic.on { color: var(--acc); }
+      .volume-row { display: flex; align-items: center; gap: 9px; margin-top: 11px; }
+      .volume-row > button {
+        background: transparent; border: 0; color: #fff; cursor: pointer;
+        width: 26px; height: 26px; display: grid; place-items: center; padding: 0; border-radius: 50%;
+      }
+      .vol { -webkit-appearance: none; appearance: none; flex: 1; max-width: 148px; height: 4px; border-radius: 4px; background: rgba(255,255,255,.25); outline: none; cursor: pointer; padding: 0; }
+      .vol::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #fff; }
+      .vol::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: #fff; }
+      .lyrics {
+        border-left: 1px solid rgba(255,255,255,.09); margin-left: 18px; padding-left: 18px;
+        min-width: 0; display: flex; align-items: center;
+      }
+      /* only a few lines are visible: the track scrolls smoothly so the
+         current line stays centered, sharp and bold, the rest blurred */
+      .lyr-view {
+        height: 124px; width: 100%; overflow: hidden;
+        -webkit-mask-image: linear-gradient(180deg, transparent, #000 26%, #000 74%, transparent);
+        mask-image: linear-gradient(180deg, transparent, #000 26%, #000 74%, transparent);
+      }
+      .lyr-track { position: relative; transition: transform .55s cubic-bezier(.65,0,.35,1); will-change: transform; }
+      .lyrics p { margin: 0; padding: 5px 2px; font-size: 13px; text-align: center; color: rgba(255,255,255,.28); filter: blur(1.4px); transition: color .45s, filter .45s, font-size .45s; line-height: 1.35; }
+      .lyrics p.now { color: #fff; filter: none; font-weight: 700; font-size: 16.5px; }
+      .lyrics p.near { filter: blur(.5px); color: rgba(255,255,255,.55); }
+      /* todo page */
+      .todo-add { display: flex; gap: 8px; margin-bottom: 6px; }
+      .todo-add > .hbtn { border-radius: 12px; padding: 6px 18px; }
+      .todo-field {
+        flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0;
+        background: #232323; border: 1px solid rgba(255,255,255,.05); border-radius: 12px; padding: 4px 5px 4px 14px;
+      }
+      .todo-field input { flex: 1; min-width: 0; background: transparent; border: 0; outline: none; color: #f2f2f2; font-size: 13.5px; padding: 7px 0; }
+      .todo-field input::placeholder { color: #7d7d7d; }
+      .due-btn {
+        background: #333333; color: #d9d9d9; border: 0; cursor: pointer; flex: none;
+        font-size: 12.5px; font-weight: 600; padding: 6px 12px; border-radius: 999px;
+        display: inline-flex; align-items: center; gap: 6px;
+      }
+      .due-btn.on { background: #fff; color: #111; }
+      .todo-item {
+        display: flex; align-items: center; gap: 11px;
+        padding: 9px 2px; font-size: 13.5px; border-bottom: 1px solid rgba(255,255,255,.06);
+      }
+      .todo-item .tick {
+        width: 21px; height: 21px; border-radius: 50%; border: 2px solid rgba(255,255,255,.4);
+        background: transparent; cursor: pointer; flex: none; display: grid; place-items: center; color: #111; font-size: 12px; padding: 0;
+      }
+      .todo-item.done .tick { background: #fff; border-color: #fff; }
+      .todo-item.done .tname { text-decoration: line-through; color: #8f8f8f; }
+      .todo-item .due { margin-left: auto; text-align: right; font-size: 11.5px; color: #8f8f8f; flex: none; }
+      .todo-item .due b { color: #e8e8e8; font-weight: 700; display: block; font-size: 11.5px; }
+      .todo-item .due b.hot { color: #e8836b; }
+      /* shelf page */
+      .shelf-drop {
+        background: #202020; border: 1px solid rgba(255,255,255,.13); border-radius: 14px;
+        padding: 19px 16px; text-align: center; color: #d9d9d9; font-size: 13.5px; cursor: pointer;
+      }
+      .shelf-drop.drag { border-color: var(--acc); color: #fff; }
+      .shelf-empty { color: #a3a3a3; font-size: 13px; margin: 13px 0 0; }
+      .shelf-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; margin-top: 12px; }
+      @media (max-width: 560px) { .shelf-grid { grid-template-columns: repeat(3, 1fr); } }
+      .tile {
+        background: #232323; border-radius: 12px; padding: 10px 9px;
+        font-size: 11px; line-height: 1.35; min-height: 66px; display: flex; flex-direction: column; gap: 7px;
+      }
+      .tile .ext {
+        font-size: 10px; font-weight: 700;
+        background: rgba(255,255,255,.13); color: #e8e8e8; border-radius: 5px;
+        padding: 2px 6px; align-self: flex-start; letter-spacing: .03em;
+      }
+      .tile.missing { opacity: .45; }
+      .tile span { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; word-break: break-all; }
+      /* color picker page */
+      .mini-label { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--on-dark-muted); margin: 0 0 8px; }
+      .cp-main { display: flex; gap: 14px; align-items: center; }
+      .cp-swatch { width: 48px; height: 48px; border-radius: 13px; background: #fbfbfb; flex: none; }
+      .cp-hex { font-size: 17px; font-weight: 700; line-height: 1.25; }
+      .cp-rgb { color: #a3a3a3; font-size: 12.5px; }
+      .cp-pick { margin-left: auto; flex: none; }
+      .cp-recent { display: flex; gap: 7px; margin-top: 9px; min-height: 25px; align-items: center; }
+      .cp-recent button { width: 25px; height: 25px; border-radius: 8px; border: 1px solid rgba(255,255,255,.14); cursor: pointer; padding: 0; }
+      .cp-sec { display: flex; align-items: baseline; margin: 10px 0 7px; }
+      .cp-sec b { font-size: 13.5px; font-weight: 700; }
+      .cp-sec span { margin-left: auto; color: #a3a3a3; font-size: 12.5px; font-weight: 600; }
+      .theme-circles { display: flex; gap: 9px; }
+      .theme-circles button { width: 28px; height: 28px; border-radius: 50%; border: 0; cursor: pointer; padding: 0; }
+      .theme-circles button.on { box-shadow: 0 0 0 2px #111, 0 0 0 4px #fff; }
+      .use-theme { margin-top: 9px; }
+      .bg-grid { display: flex; flex-wrap: wrap; gap: 7px; }
+      .bg-grid button, .mode-row button {
+        background: #2c2c2c; color: #d9d9d9; border: 0; cursor: pointer;
+        font-size: 12.5px; font-weight: 600; padding: 6px 13px; border-radius: 999px;
+      }
+      .bg-grid button:hover, .mode-row button:hover { background: #3a3a3a; }
+      .bg-grid button.on, .mode-row button.on { background: #fff; color: #111; }
+      /* palette page */
+      .pal-swatches { display: grid; grid-template-columns: repeat(5, 1fr); gap: 9px; }
+      .psw { background: transparent; border: 0; padding: 0; cursor: pointer; text-align: center; }
+      .psw i { display: block; height: 62px; border-radius: 13px; }
+      .psw span { display: block; font-size: 11.5px; color: #d9d9d9; margin-top: 6px; }
+      .mode-row { display: flex; gap: 7px; margin-top: 13px; flex-wrap: wrap; }
+      .pal-custom { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+      .pal-custom .dark-input { flex: 1; }
+      .pal-slots { display: grid; grid-template-columns: repeat(5, 1fr); gap: 9px; margin-top: 12px; }
+      .slot {
+        height: 46px; border-radius: 12px; background: #232323; border: 0; color: #8a8a8a;
+        font-size: 19px; display: grid; place-items: center; cursor: pointer; padding: 0; overflow: hidden;
+      }
+      .slot.filled { border: 1px solid rgba(255,255,255,.12); }
+      /* image palette + notes pages */
+      .ip-text { color: #a3a3a3; font-size: 13.5px; margin: 2px 0 0; }
+      .notes-area {
+        width: 100%; height: 130px; background: #1f1f1f; border: 1px solid rgba(255,255,255,.05);
+        border-radius: 14px; color: #f2f2f2; padding: 14px 16px; font-size: 13.5px;
+        line-height: 1.65; resize: none; outline: none; display: block;
+      }
+      .demo-caption { text-align: center; color: var(--muted); font-size: 13.5px; margin-top: 14px; }
+      /* fullscreen lyrics overlay */
+      .fs-lyrics {
+        position: absolute; inset: 0; z-index: 8; display: none;
+        font-family: "Segoe UI", "Segoe UI Variable Text", system-ui, sans-serif;
+        background:
+          radial-gradient(700px 380px at 18% 110%, rgba(210,166,121,.34), transparent 65%),
+          radial-gradient(700px 420px at 88% -10%, rgba(90,140,160,.3), transparent 65%),
+          #101010;
+        color: var(--on-dark); padding: 34px 40px;
+      }
+      .fs-lyrics.on { display: grid; grid-template-columns: 240px 1fr; gap: 44px; align-items: center; }
+      @media (max-width: 640px) { .fs-lyrics.on { grid-template-columns: 1fr; padding: 24px; } .fs-lyrics .fs-right { display: none; } }
+      .fs-lyrics .artwork { width: 150px; height: 150px; border-radius: 18px; }
+      .fs-close {
+        position: absolute; top: 16px; right: 16px; width: 36px; height: 36px; border-radius: 50%;
+        background: rgba(255,255,255,.1); border: 0; color: #fff; font-size: 16px; cursor: pointer;
+      }
+      .fs-right {
+        height: 300px; overflow: hidden; min-width: 0;
+        -webkit-mask-image: linear-gradient(180deg, transparent, #000 24%, #000 76%, transparent);
+        mask-image: linear-gradient(180deg, transparent, #000 24%, #000 76%, transparent);
+      }
+      .fs-track { position: relative; transition: transform .55s cubic-bezier(.65,0,.35,1); will-change: transform; }
+      .fs-right p { font-size: 19px; margin: 0; padding: 7px 0; line-height: 1.35; text-align: left; color: rgba(244,238,227,.30); filter: blur(1.8px); transition: color .45s, filter .45s, font-size .45s; }
+      .fs-right p.now { font-size: 28px; font-weight: 800; color: #fff; filter: none; }
+      .fs-right p.near { filter: blur(.55px); color: rgba(244,238,227,.6); }
+
+      /* ---------- sections ---------- */
+      section { padding: 72px 0 8px; }
+      .sec-head { max-width: 680px; margin-bottom: 40px; }
+      .sec-head h2 { font-size: clamp(27px, 4vw, 36px); letter-spacing: -0.02em; line-height: 1.15; margin: 0 0 12px; }
+      .sec-head p { color: var(--muted); margin: 0; }
+      .feature-row {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 44px; align-items: center;
+        padding: 34px 0; border-top: 1px solid var(--line);
+      }
+      .feature-row:first-of-type { border-top: 0; padding-top: 6px; }
+      .feature-row h3 { font-size: 23px; margin: 0 0 10px; letter-spacing: -0.01em; }
+      .feature-row p { color: var(--muted); margin: 0 0 14px; }
+      .feature-row ul { margin: 0; padding: 0; list-style: none; }
+      .feature-row li { padding: 5px 0 5px 26px; position: relative; color: var(--muted); font-size: 15.5px; }
+      .feature-row li::before { content: ""; position: absolute; left: 2px; top: 13px; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
+      .feature-row li b { color: var(--ink); font-weight: 700; }
+      @media (max-width: 820px) { .feature-row { grid-template-columns: 1fr; gap: 22px; } }
+      .panel {
+        background: var(--notch); color: var(--on-dark); border-radius: var(--radius);
+        padding: 22px; box-shadow: 0 18px 44px rgba(10,8,4,.28);
+      }
+      .panel .mini-label { color: var(--on-dark-muted); }
+      .panel .rowline { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,.07); font-size: 14px; }
+      .panel .rowline:last-child { border-bottom: 0; }
+      .chip {
+        font-size: 11px; font-weight: 700; border-radius: 999px; padding: 3px 10px;
+        background: rgba(210,166,121,.18); color: var(--gold); margin-left: auto; flex: none;
+      }
+      .chip.hot { background: rgba(232,131,107,.16); color: #eda08c; }
+      .small-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 8px; }
+      @media (max-width: 900px) { .small-grid { grid-template-columns: repeat(2, 1fr); } }
+      @media (max-width: 520px) { .small-grid { grid-template-columns: 1fr; } }
+      .small-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+      .small-card h4 { margin: 0 0 7px; font-size: 16.5px; }
+      .small-card p { margin: 0; color: var(--muted); font-size: 14.5px; }
+      .small-card .ic { width: 34px; height: 34px; border-radius: 10px; background: var(--surface-2); display: grid; place-items: center; margin-bottom: 13px; color: var(--gold-strong); }
+      @media (prefers-color-scheme: dark) { .small-card .ic { color: var(--gold); } }
+
+      /* ---------- dark band ---------- */
+      .band { background: var(--dark-section); color: var(--on-dark); margin-top: 76px; padding: 70px 0 78px; }
+      .band h2 { color: var(--on-dark); }
+      .band .sec-head p { color: var(--on-dark-muted); }
+      .spec-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+      @media (max-width: 820px) { .spec-grid { grid-template-columns: 1fr; } }
+      .spec { border: 1px solid rgba(255,255,255,.11); border-radius: var(--radius); padding: 22px; }
+      .spec .big { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; color: var(--gold); }
+      .spec p { color: var(--on-dark-muted); margin: 6px 0 0; font-size: 14.5px; }
+
+      /* ---------- compare table ---------- */
+      .cmp { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+      .cmp th, .cmp td { text-align: left; padding: 14px 18px; font-size: 15px; border-bottom: 1px solid var(--line); vertical-align: top; }
+      .cmp thead th { background: var(--surface-2); font-size: 13px; letter-spacing: .05em; text-transform: uppercase; }
+      .cmp thead th.pro { color: var(--gold-strong); }
+      @media (prefers-color-scheme: dark) { .cmp thead th.pro { color: var(--gold); } }
+      .cmp tbody tr:last-child td { border-bottom: 0; }
+      .cmp td.f { font-weight: 700; width: 30%; }
+      .cmp td.c { color: var(--muted); width: 35%; }
+      .yes { color: var(--gold-strong); font-weight: 800; }
+      @media (prefers-color-scheme: dark) { .yes { color: var(--gold); } }
+      @media (max-width: 700px) {
+        .cmp, .cmp tbody, .cmp tr, .cmp td { display: block; width: 100% !important; }
+        .cmp thead { display: none; }
+        .cmp tr { padding: 12px 0; border-bottom: 1px solid var(--line); }
+        .cmp td { border-bottom: 0; padding: 3px 18px; }
+        .cmp td.c::before { content: attr(data-l) ": "; font-weight: 700; color: var(--ink); }
+      }
+      .pro-note {
+        margin-top: 22px; background: var(--surface); border: 1px solid var(--line);
+        border-radius: var(--radius); padding: 24px; display: flex; gap: 22px; align-items: center; flex-wrap: wrap;
+      }
+      .pro-note div { flex: 1; min-width: 260px; }
+      .pro-note h3 { margin: 0 0 6px; font-size: 19px; }
+      .pro-note p { margin: 0; color: var(--muted); font-size: 15px; }
+
+      /* ---------- steps / faq ---------- */
+      .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+      @media (max-width: 820px) { .steps { grid-template-columns: 1fr; } }
+      .step { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+      .step .n { font-family: "IBM Plex Mono", monospace; color: var(--gold-strong); font-weight: 500; font-size: 13px; }
+      @media (prefers-color-scheme: dark) { .step .n { color: var(--gold); } }
+      .step h4 { margin: 8px 0 6px; font-size: 16.5px; }
+      .step p { margin: 0; color: var(--muted); font-size: 14.5px; }
+      details {
+        background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+        padding: 18px 22px; margin-bottom: 10px;
+      }
+      details summary { font-weight: 700; cursor: pointer; font-size: 16px; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+      details summary::-webkit-details-marker { display: none; }
+      details summary::after { content: "+"; color: var(--gold-strong); font-size: 20px; line-height: 1; }
+      details[open ] summary::after { content: "–"; }
+      details p { color: var(--muted); margin: 10px 0 2px; font-size: 15px; }
+      .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; }
+      @media (max-width: 820px) { .two-col { grid-template-columns: 1fr; } }
+
+      /* ---------- download / footer ---------- */
+      .download { text-align: center; padding: 84px 0 30px; }
+      .download h2 { font-size: clamp(28px, 4.5vw, 40px); letter-spacing: -0.02em; margin: 0 0 12px; }
+      .download p { color: var(--muted); max-width: 560px; margin: 0 auto 28px; }
+      footer { border-top: 1px solid var(--line); margin-top: 70px; padding: 26px 0 40px; }
+      .foot-in { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; color: var(--muted); font-size: 13.5px; }
+      .foot-in .sp { margin-left: auto; }
+      .foot-note { max-width: 880px; color: var(--muted); font-size: 13px; line-height: 1.65; margin: 16px 0 0; }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .notch, .notch-body, .pill, .lyrics p, .fs-right p, .lyr-track, .fs-track { transition: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="wrap nav-in">
+        <a class="brand" href="#top" aria-label="Barivy home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M6 3v18" stroke="#d2a679" stroke-width="2.6" stroke-linecap="round"/><circle cx="14.5" cy="14.5" r="5.6" stroke="#d2a679" stroke-width="2.6"/></svg>
+          </span>
+          barivy
+        </a>
+        <div class="nav-links">
+          <a href="#features">Features</a>
+          <a href="#compare">Free vs Pro</a>
+          <a href="#smartscreen">Windows notice</a>
+          <a href="#faq">FAQ</a>
+          <a class="btn" href="#download">Download</a>
+        </div>
+      </div>
+    </nav>
+
+    <header class="hero wrap" id="top">
+      <div class="os-badges"><span>WINDOWS 10</span><span>WINDOWS 11</span><span>64-BIT</span></div>
+      <h1>The top of your screen, working for you</h1>
+      <p class="lede">Barivy is a dynamic notch for Windows that lives at the top center of your screen. Hover it and it opens up: your music with synced lyrics, todo deadlines that count down, a shelf of pinned files, color tools, and notes — all one glance away, never a window to dig for.</p>
+      <div class="hero-cta">
+        <a class="btn big" href="https://github.com/misavondo86/barivy/releases/download/v1.0/BarivySetup.exe">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4.5-4.5M12 15 7.5 10.5M4 20h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Download for Windows
+        </a>
+        <a class="btn big ghost" href="#compare">See Free vs Pro</a>
+      </div>
+      <p class="hero-meta">Version 1.0 · <span class="mono">BarivySetup.exe</span> installer, about 7 MB · Requires the free <span class="mono">.NET 10</span> Desktop Runtime</p>
+    </header>
+
+    <div class="demo wrap">
+      <div class="desktop" id="desktop">
+        <!-- Notch mockup — restyled to match the real Barivy UI -->
+        <div class="notch" id="notch" data-page="music" data-bg="solid" data-lyrics="off">
+          <button type="button" class="pill" id="pillBtn" aria-label="Expand the Barivy notch demo" aria-expanded="false">
+            <span class="pdot" aria-hidden="true"></span>
+            <span class="ptime" id="pillTime">15:27</span>
+            <span class="pwx"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 18h9.5a3.5 3.5 0 0 0 .6-6.95A5.5 5.5 0 0 0 6.34 12 3.25 3.25 0 0 0 7 18Z" fill="#c9c9c9"/><path d="M8.5 20l-.7 1.5M12.5 20l-.7 1.5M16.5 20l-.7 1.5" stroke="#7fb2e0" stroke-width="1.6" stroke-linecap="round"/></svg>32°</span>
+          </button>
+          <button type="button" class="notch-nav prev" id="navPrev" aria-label="Previous page"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17 4v16L6 12z"/></svg></button>
+          <button type="button" class="notch-nav next" id="navNext" aria-label="Next page"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l11-8z"/></svg></button>
+          <div class="notch-body">
+
+            <div class="page on" data-page="music">
+              <div class="music-grid">
+                <div>
+                  <div class="music-top">
+                    <div class="artwork" aria-hidden="true"></div>
+                    <div>
+                      <div class="track-title">Golden Hour Drive</div>
+                      <div class="track-artist">Aurora Lane</div>
+                    </div>
+                  </div>
+                  <div class="progress-row">
+                    <span class="pt" id="tCur">0:00</span>
+                    <div class="progress" id="progTrack"><i id="progFill"></i></div>
+                    <span class="pt">3:24</span>
+                  </div>
+                  <div class="transport">
+                    <button type="button" id="prevBtn" aria-label="Previous track"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2.2v14H6zM20 5v14L9.5 12z"/></svg></button>
+                    <button type="button" class="play" id="playBtn" aria-label="Play or pause">
+                      <svg id="playIco" width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.8v14.4L19.5 12z"/></svg>
+                    </button>
+                    <button type="button" id="nextBtn" aria-label="Next track"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M15.8 5H18v14h-2.2zM4 5v14l10.5-7z"/></svg></button>
+                    <button type="button" class="tgl" id="repeatBtn" aria-label="Repeat"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 9.5A8 8 0 0 1 19.3 6M20 14.5a8 8 0 0 1-15.3 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M19.8 2.8v3.6h-3.6M4.2 21.2v-3.6h3.6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                    <button type="button" class="mic" id="micBtn" aria-label="Toggle lyrics"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+                    <button type="button" id="fsBtn" aria-label="Open fullscreen lyrics"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                  </div>
+                  <div class="volume-row">
+                    <button type="button" id="volBtn" aria-label="Mute or unmute"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M4 9.5v5h3.5L12 18.6V5.4L7.5 9.5H4z"/><path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></button>
+                    <input type="range" class="vol" id="volRange" min="0" max="100" value="70" aria-label="Player volume" />
+                  </div>
+                </div>
+                <div class="lyrics" id="lyricsBox" aria-hidden="true">
+                  <div class="lyr-view">
+                    <div class="lyr-track" id="lyrTrack">
+                      <p>City lights are waking up below</p>
+                      <p>We chase the last of the afterglow</p>
+                      <p>Every mile is a line we wrote</p>
+                      <p>On a dashboard full of notes</p>
+                      <p>Golden hour, don't let go</p>
+                      <p>Golden hour, take us home</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="page" data-page="todo">
+              <div class="page-head">
+                <h4>To-do</h4>
+                <span class="sp"><button type="button" class="hbtn" id="clearDoneBtn">Clear done</button></span>
+              </div>
+              <div class="todo-add">
+                <div class="todo-field">
+                  <input type="text" id="todoInput" placeholder="Add a task…" aria-label="New task" />
+                  <button type="button" class="due-btn" id="dueBtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="2.5" stroke="currentColor" stroke-width="2"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Due</button>
+                </div>
+                <button type="button" class="hbtn white" id="addBtn">+ Add</button>
+              </div>
+              <div id="todoList">
+                <div class="todo-item">
+                  <button type="button" class="tick" aria-label="Mark done"></button>
+                  <span class="tname">Send catalog revision to Lily</span>
+                  <span class="due"><b>2d 3h left</b>Due 29 Oct · 14:00</span>
+                </div>
+                <div class="todo-item">
+                  <button type="button" class="tick" aria-label="Mark done"></button>
+                  <span class="tname">Record lead vocal take</span>
+                  <span class="due"><b class="hot">5h 20m left</b>Due today · 19:30</span>
+                </div>
+                <div class="todo-item">
+                  <button type="button" class="tick" aria-label="Mark done"></button>
+                  <span class="tname">Export poster print file</span>
+                  <span class="due">Due 7 Nov</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="page" data-page="shelf">
+              <div class="page-head">
+                <h4>Shelf</h4>
+                <span class="sp">
+                  <span class="status" id="shelfCount">0 items</span>
+                  <button type="button" class="hbtn" id="clearMissingBtn">Clear missing</button>
+                </span>
+              </div>
+              <div class="shelf-drop" id="shelfDrop">↓ Drop files or folders here</div>
+              <p class="shelf-empty" id="shelfEmpty">Shelf is empty — drag files or folders to the notch</p>
+              <div class="shelf-grid" id="shelfGrid"></div>
+              <input type="file" id="shelfFile" multiple hidden />
+            </div>
+
+            <div class="page" data-page="colors">
+              <div class="page-head">
+                <h4>Color Picker</h4>
+                <span class="sp">
+                  <span class="status" id="cpStatus"></span>
+                  <button type="button" class="hbtn" id="cpClear">Clear</button>
+                </span>
+              </div>
+              <div class="cp-main">
+                <div class="cp-swatch" id="cpSwatch"></div>
+                <div>
+                  <div class="cp-hex" id="cpHex">#FBFBFB</div>
+                  <div class="cp-rgb" id="cpRgb">251, 251, 251</div>
+                </div>
+                <button type="button" class="hbtn white cp-pick" id="cpPick"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-1.9 0-.8-.6-1.3-.6-2.1 0-.9.7-1.6 1.7-1.6H17a4 4 0 0 0 4-4c0-4.6-4-8.4-9-8.4Z" stroke="currentColor" stroke-width="1.8"/><circle cx="7.5" cy="10.5" r="1.3" fill="currentColor"/><circle cx="11" cy="7" r="1.3" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1.3" fill="currentColor"/></svg>Pick a color</button>
+              </div>
+              <div class="cp-recent" id="cpRecent"></div>
+              <div class="cp-sec"><b>Theme</b><span id="themeName">Tan Gold</span></div>
+              <div class="theme-circles" id="themeCircles">
+                <button type="button" class="on" data-name="Tan Gold" data-color="#D2A679" style="background:#d2a679" aria-label="Tan Gold theme"></button>
+                <button type="button" data-name="White" data-color="#FFFFFF" style="background:#ffffff" aria-label="White theme"></button>
+                <button type="button" data-name="Sky" data-color="#7FB2E0" style="background:#7fb2e0" aria-label="Sky theme"></button>
+                <button type="button" data-name="Mint" data-color="#7FD6A4" style="background:#7fd6a4" aria-label="Mint theme"></button>
+                <button type="button" data-name="Lavender" data-color="#C5A3E0" style="background:#c5a3e0" aria-label="Lavender theme"></button>
+                <button type="button" data-name="Rose" data-color="#E8A3C0" style="background:#e8a3c0" aria-label="Rose theme"></button>
+              </div>
+              <button type="button" class="hbtn white use-theme" id="useThemeBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-1.9 0-.8-.6-1.3-.6-2.1 0-.9.7-1.6 1.7-1.6H17a4 4 0 0 0 4-4c0-4.6-4-8.4-9-8.4Z" stroke="currentColor" stroke-width="1.8"/><circle cx="7.5" cy="10.5" r="1.3" fill="currentColor"/><circle cx="11" cy="7" r="1.3" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1.3" fill="currentColor"/></svg>Use picker color as theme</button>
+              <div class="cp-sec"><b>Background</b><span id="bgName">Solid</span></div>
+              <div class="bg-grid" id="bgGrid">
+                <button type="button" class="on" data-bg="solid" data-label="Solid">Solid</button>
+                <button type="button" data-bg="aurora-music" data-label="Aurora (Music)">Aurora (Music)</button>
+                <button type="button" data-bg="aurora-all" data-label="Aurora (All)">Aurora (All)</button>
+                <button type="button" data-bg="translucent" data-label="Translucent">Translucent</button>
+                <button type="button" data-bg="ta-music" data-label="Translucent Aurora (Music)">Translucent Aurora (Music)</button>
+                <button type="button" data-bg="ta-all" data-label="Translucent Aurora (All)">Translucent Aurora (All)</button>
+              </div>
+            </div>
+
+            <div class="page" data-page="palette">
+              <div class="page-head">
+                <h4>Palette</h4>
+                <span class="sp">
+                  <span class="status" id="palFrom">From #FBFBFB</span>
+                  <button type="button" class="hbtn white" id="palSave">Save</button>
+                </span>
+              </div>
+              <div class="pal-swatches" id="palRow"></div>
+              <div class="mode-row" id="palModes">
+                <button type="button" data-mode="mono" class="on">Mono</button>
+                <button type="button" data-mode="analogous">Analogous</button>
+                <button type="button" data-mode="comp">Complementary</button>
+              </div>
+              <div class="pal-custom">
+                <input type="text" class="dark-input" id="palName" placeholder="Custom palette name…" aria-label="Custom palette name" />
+                <button type="button" class="hbtn" id="palSaveCustom">Save custom</button>
+                <button type="button" class="hbtn" id="palClearSlots">Clear</button>
+              </div>
+              <div class="pal-slots" id="palSlots">
+                <button type="button" class="slot">+</button>
+                <button type="button" class="slot">+</button>
+                <button type="button" class="slot">+</button>
+                <button type="button" class="slot">+</button>
+                <button type="button" class="slot">+</button>
+              </div>
+            </div>
+
+            <div class="page" data-page="imgpal">
+              <div class="page-head">
+                <h4>Image Palette</h4>
+                <span class="sp">
+                  <span class="status" id="ipStatus"></span>
+                  <button type="button" class="hbtn white" id="ipPick"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2" stroke="currentColor" stroke-width="1.9"/><circle cx="9" cy="10" r="1.6" fill="currentColor"/><path d="M5 18.5 10.5 13l3.5 3.5 2.5-2.5 3 3.5" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>Pick image</button>
+                </span>
+              </div>
+              <p class="ip-text" id="ipEmpty">Drop an image on the notch, or pick one</p>
+              <div class="pal-swatches" id="ipResult"></div>
+              <input type="file" id="ipFile" accept="image/*" hidden />
+            </div>
+
+            <div class="page" data-page="notes">
+              <div class="page-head">
+                <h4>Quick Notes</h4>
+                <span class="sp">
+                  <span class="status">Auto-saved</span>
+                  <button type="button" class="hbtn" id="notesClear">Clear</button>
+                </span>
+              </div>
+              <textarea class="notes-area" id="notesArea" aria-label="Quick notes">TikTok demo script — open on the pill, hover, let the lyrics roll.
+Show the deadline countdown, then the color picker over a design.
+End on fullscreen lyrics. Keep it under 60 seconds.</textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fullscreen lyrics overlay -->
+        <div class="fs-lyrics" id="fsLyrics" aria-hidden="true">
+          <button type="button" class="fs-close" id="fsClose" aria-label="Close fullscreen lyrics">✕</button>
+          <div>
+            <div class="artwork" aria-hidden="true"></div>
+            <div class="track-title" style="font-size:18px">Golden Hour Drive</div>
+            <div class="track-artist" style="font-size:14px">Aurora Lane</div>
+            <div class="progress" style="max-width:220px;margin:14px 0 6px"><i id="fsProg" style="width:34%"></i></div>
+            <div class="times" style="max-width:220px"><span id="fsCur">0:00</span><span>3:24</span></div>
+            <div class="transport">
+              <button type="button" id="fsPrev" aria-label="Previous track"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2.2v14H6zM20 5v14L9.5 12z"/></svg></button>
+              <button type="button" class="play" id="fsPlay" aria-label="Play or pause">
+                <svg id="fsPlayIco" width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.8v14.4L19.5 12z"/></svg>
+              </button>
+              <button type="button" id="fsNext" aria-label="Next track"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M15.8 5H18v14h-2.2zM4 5v14l10.5-7z"/></svg></button>
+            </div>
+          </div>
+          <div class="fs-right" id="fsLines">
+            <div class="fs-track" id="fsTrack">
+              <p>City lights are waking up below</p>
+              <p>We chase the last of the afterglow</p>
+              <p>Every mile is a line we wrote</p>
+              <p>On a dashboard full of notes</p>
+              <p>Golden hour, don't let go</p>
+              <p>Golden hour, take us home</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="wallpaper-note">Your desktop stays yours — Barivy only borrows the top edge.</div>
+        <div class="taskbar" aria-hidden="true">
+          <span>Start</span>
+          <span class="tb-icons"><span class="tb-dot"></span><span class="tb-dot gold"></span><span class="tb-dot"></span><span class="tb-dot"></span></span>
+          <span>12:12</span>
+        </div>
+      </div>
+      <p class="demo-caption">This is a working mockup of the notch — hover or tap it, switch pages, press play. The real app behaves the same way on your desktop.</p>
+    </div>
+
+    <section class="wrap" id="features">
+      <div class="sec-head">
+        <h2>Six pages, one pill</h2>
+        <p>Everything sits behind a single hover. No dock clutter, no extra windows — the notch expands, you do the thing, it folds away.</p>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <h3>Music that shows its lyrics</h3>
+          <p>Barivy reads whatever is already playing on Windows — Spotify, a browser tab, your media player — and follows it with synced lyrics fetched from LRCLIB. The artwork tints the notch with a soft aurora that moves with the music.</p>
+          <ul>
+            <li><b>Synced lyrics</b> in the notch, line by line, with the current line sharp and the rest gently blurred</li>
+            <li><b>Fullscreen lyrics view</b> for a full lean-back moment <span class="mono" style="font-size:12px">(Pro)</span></li>
+            <li><b>Volume for the player itself</b>, separate from system volume <span class="mono" style="font-size:12px">(Pro)</span>, with the system slider as fallback</li>
+            <li><b>The pill keeps singing</b> — a mini lyric line and live weather share the collapsed pill</li>
+          </ul>
+        </div>
+        <div class="panel" aria-hidden="true">
+          <p class="mini-label">Now playing</p>
+          <div class="rowline"><span>Golden Hour Drive — Aurora Lane</span><span class="chip">LYRICS SYNCED</span></div>
+          <div class="rowline"><span>Player volume</span><span class="chip">72%</span></div>
+          <div class="rowline"><span>System volume</span><span class="chip">45%</span></div>
+          <div class="rowline"><span>Repeat</span><span class="chip">ALL</span></div>
+          <div class="rowline"><span>Background</span><span class="chip">AURORA</span></div>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="panel" aria-hidden="true">
+          <p class="mini-label">Coming up</p>
+          <div class="rowline"><span>Send catalog revision</span><span class="chip">2D 3H LEFT</span></div>
+          <div class="rowline"><span>Record lead vocal take</span><span class="chip hot">5H 20M LEFT</span></div>
+          <div class="rowline"><span>Seminar poster deadline</span><span class="chip hot">STARTS IN 5 MIN</span></div>
+          <div class="rowline"><span>Export poster print file</span><span class="chip">7 NOV</span></div>
+        </div>
+        <div>
+          <h3>Deadlines that count down out loud</h3>
+          <p>A todo list is easy to ignore. Barivy deadlines pick an exact day <em>and</em> time — chosen with a picker, never typed — and keep a live countdown on every card: <span class="mono" style="font-size:13.5px">2d 3h left</span>, <span class="mono" style="font-size:13.5px">45m left</span>, updating every minute.</p>
+          <ul>
+            <li><b>Warned three times:</b> a day ahead, five minutes ahead, and exactly on time — with a Windows alert sound <span class="mono" style="font-size:12px">(Pro)</span></li>
+            <li><b>Startup reminder</b> each morning for your nearest deadline <span class="mono" style="font-size:12px">(Pro)</span></li>
+            <li><b>Free keeps the core:</b> add, done, delete, clear done — plus date-only deadlines with a due-day reminder</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div>
+          <h3>A shelf for the files you keep reaching for</h3>
+          <p>Pin the poster draft, the mix bounce, the catalog PDF — drag files onto the Shelf and they wait in the notch instead of a buried folder. Click an image or a video and it previews right there.</p>
+          <ul>
+            <li><b>Drag in, drag out</b> — tiles drag back into Explorer or your design app</li>
+            <li><b>Built-in preview</b> for images, with video and audio playback in a floating player <span class="mono" style="font-size:12px">(video &amp; audio: Pro)</span></li>
+            <li><b>Honest about missing files:</b> moved a file? Its tile greys out, with a one-click clear</li>
+          </ul>
+        </div>
+        <div class="panel" aria-hidden="true">
+          <p class="mini-label">Shelf preview</p>
+          <div class="rowline"><span>poster-final-v3.png</span><span class="chip">2000 × 2443</span></div>
+          <div class="rowline"><span>notch-demo-tiktok.mp4</span><span class="chip">0:42 · PLAYING</span></div>
+          <div class="rowline"><span>dari-jauh-mix2.wav</span><span class="chip">3:24</span></div>
+          <div class="rowline"><span>old-take.mov</span><span class="chip hot">FILE MOVED</span></div>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="panel" aria-hidden="true">
+          <p class="mini-label">Picked at cursor</p>
+          <div class="rowline"><span class="mono">#D2A679</span><span class="chip">COPIED</span></div>
+          <div class="rowline"><span class="mono">#5A8CA0</span><span class="chip">FROM PHOTO</span></div>
+          <div class="rowline"><span>Palette</span><span class="chip">ANALOGOUS · 5 SWATCHES</span></div>
+          <div class="rowline"><span>Image palette</span><span class="chip">5 DOMINANT COLORS</span></div>
+        </div>
+        <div>
+          <h3>Color tools built for designers</h3>
+          <p>Press the picker and Barivy reads the exact pixel under your cursor, anywhere on screen — another app, a photo, a client PDF. The HEX copies itself. Then turn any color into a five-swatch palette, or pull the five dominant colors out of an image.</p>
+          <ul>
+            <li><b>Fullscreen picker</b> with a recent-colors history <span class="mono" style="font-size:12px">(6 free · 12 Pro)</span></li>
+            <li><b>Palette generator:</b> Mono, Analogous, or Complementary — click any swatch to copy</li>
+            <li><b>Image Palette</b> reads PNG, JPG, BMP, and GIF files</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="small-grid">
+        <div class="small-card">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 4h14v16l-3-2.2L13 20l-2-1.6L8 20l-3-2.2z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 8.5h7M8.5 12h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <h4>Notes, in place</h4>
+          <p>A scratch page inside the notch for set lists, scripts, and the thought you would otherwise lose.</p>
+        </div>
+        <div class="small-card">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M12 3v2.4M12 18.6V21M3 12h2.4M18.6 12H21M5.6 5.6l1.7 1.7M16.7 16.7l1.7 1.7M18.4 5.6l-1.7 1.7M7.3 16.7l-1.7 1.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <h4>Weather in the pill</h4>
+          <p>Live conditions for your area refresh every 15 minutes via Open-Meteo — and politely hide while a lyric line is showing.</p>
+        </div>
+        <div class="small-card">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 4h6l-1 7 3 3v2H7v-2l3-3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 16v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <h4>Pin &amp; game mode</h4>
+          <p>Pin the notch open while you work, or flip on game mode and hover-expansion stays out of your fullscreen game entirely.</p>
+        </div>
+        <div class="small-card">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <h4>Make it yours</h4>
+          <p>Accent themes led by Tan Gold, Solid or Aurora backgrounds, start-with-Windows from the tray. Custom colors and translucent aurora are Pro.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="band">
+      <div class="wrap">
+        <div class="sec-head">
+          <h2>Small, honest, and offline by default</h2>
+          <p>No account, no Barivy server, no telemetry. Your todos, shelf paths, colors, and notes are stored as plain files on your own machine.</p>
+        </div>
+        <div class="spec-grid">
+          <div class="spec"><span class="big">≈ 7 MB</span><p>The download is <span class="mono">BarivySetup.exe</span>, a small installer that sets Barivy up per user — no admin rights needed — and adds a Start Menu shortcut. It is framework-dependent, so the free .NET 10 Desktop Runtime from Microsoft needs to be installed once.</p></div>
+          <div class="spec"><span class="big">0 servers</span><p>License keys are validated offline, on your machine — your key is never sent anywhere. The only network calls are weather, lyrics, and the update check you control.</p></div>
+          <div class="spec"><span class="big">600 × 380</span><p>The expanded notch is a fixed, lightweight window. Only its inner elements animate — a smooth ease in and out, never a bounce, never a layout jump.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <section class="wrap" id="compare">
+      <div class="sec-head">
+        <h2>Free vs Pro</h2>
+        <p>Every page of the notch works in Free — free is a real app, not a demo. A few features are Pro-only in their deepest form (fullscreen lyrics, per-app volume, exact-time deadlines), and Pro removes the limits on the rest. One license key, validated offline, yours for life: no subscription, no expiry.</p>
+      </div>
+      <table class="cmp">
+        <thead><tr><th>Feature</th><th>Free</th><th class="pro">Pro</th></tr></thead>
+        <tbody>
+          <tr><td class="f">Notch core</td><td class="c" data-l="Free">Full — pill, hover expand, smooth animation</td><td class="c" data-l="Pro">Full</td></tr>
+          <tr><td class="f">Music &amp; notch lyrics</td><td class="c" data-l="Free">Full — playback, progress, synced lyrics in the notch</td><td class="c" data-l="Pro">Full</td></tr>
+          <tr><td class="f">Fullscreen lyrics</td><td class="c" data-l="Free">—</td><td class="c" data-l="Pro"><span class="yes">✓</span> Full-screen lyrics view</td></tr>
+          <tr><td class="f">Volume</td><td class="c" data-l="Free">System volume</td><td class="c" data-l="Pro"><span class="yes">✓</span> Per-app volume for the music player</td></tr>
+          <tr><td class="f">Todo deadlines</td><td class="c" data-l="Free">Date only, with a due-day notification</td><td class="c" data-l="Pro"><span class="yes">✓</span> Date + time, live countdown, startup reminder, 5-minute warning, alert sound</td></tr>
+          <tr><td class="f">Shelf</td><td class="c" data-l="Free">Up to 10 tiles, image preview</td><td class="c" data-l="Pro"><span class="yes">✓</span> Unlimited tiles, video &amp; audio preview player</td></tr>
+          <tr><td class="f">Color history</td><td class="c" data-l="Free">Last 6 colors</td><td class="c" data-l="Pro"><span class="yes">✓</span> Last 12 colors</td></tr>
+          <tr><td class="f">Saved palettes</td><td class="c" data-l="Free">Up to 3</td><td class="c" data-l="Pro"><span class="yes">✓</span> Unlimited, plus the full custom palette builder</td></tr>
+          <tr><td class="f">Themes &amp; backgrounds</td><td class="c" data-l="Free">Preset themes, Solid background</td><td class="c" data-l="Pro"><span class="yes">✓</span> Custom accent color, Aurora &amp; Translucent Aurora</td></tr>
+          <tr><td class="f">Update check</td><td class="c" data-l="Free">Manual, from the tray menu</td><td class="c" data-l="Pro"><span class="yes">✓</span> Daily automatic check with changelog</td></tr>
+          <tr><td class="f">Weather, Pin, Game mode</td><td class="c" data-l="Free">Full</td><td class="c" data-l="Pro">Full</td></tr>
+        </tbody>
+      </table>
+      <div class="pro-note" id="pro">
+        <div>
+          <h3>Getting Pro</h3>
+          <p>Pro is unlocked with a personal license key. To get one, contact Daniel personally on Telegram <b>@mvdoooo</b> or Instagram <b>@misavondo_</b> and send your email address for the license key. Daniel will share payment details in DM, and after payment is confirmed your key is sent manually — usually within 24 hours. Please only use those official accounts, and do not trust other accounts claiming to sell Barivy Pro. Then open <b>Enter license key</b> from Barivy's tray menu and paste it in — the unlock is instant and works fully offline, forever. The key is tied to you, not to one computer.</p>
+        </div>
+        <a class="btn" href="https://t.me/mvdoooo">Get a Pro key</a>
+      </div>
+    </section>
+
+    <section class="wrap" id="smartscreen">
+      <div class="sec-head">
+        <h2>The Windows warning is expected</h2>
+        <p>Barivy is an independent app without a paid code-signing certificate, so the first time you download and run the installer, your browser and Windows SmartScreen may show warnings. Those messages appear for almost every small indie app — they mean “new and unsigned”, not “dangerous”. Getting past them takes three short steps:</p>
+      </div>
+      <div class="steps">
+        <div class="step"><span class="n">STEP 1</span><h4>Keep the download</h4><p>If your browser says <span class="mono">BarivySetup.exe</span> is not commonly downloaded, choose <b>Keep</b>, then <b>Keep anyway</b>, so the installer finishes downloading.</p></div>
+        <div class="step"><span class="n">STEP 2</span><h4>More info, then Run anyway</h4><p>Run the installer. If Windows says “Windows protected your PC”, click <b>More info</b>, then <b>Run anyway</b>.</p></div>
+        <div class="step"><span class="n">STEP 3</span><h4>Follow the installer</h4><p>Click through the setup wizard. Barivy installs per user — no admin rights needed — adds a Start Menu shortcut, and settles into the top of your screen.</p></div>
+      </div>
+    </section>
+
+    <section class="wrap" id="faq">
+      <div class="two-col">
+        <div>
+          <div class="sec-head" style="margin-bottom:22px">
+            <h2>Privacy, plainly</h2>
+            <p>Barivy keeps everything on your PC, in <span class="mono" style="font-size:13.5px">%LocalAppData%\Barivy</span>. It makes exactly three kinds of network call, all visible and all replaceable by doing nothing:</p>
+          </div>
+          <details>
+            <summary>Weather</summary>
+            <p>Current conditions from Open-Meteo, refreshed every 15 minutes, shown in the collapsed pill. No account and no key involved.</p>
+          </details>
+          <details>
+            <summary>Lyrics</summary>
+            <p>Synced lyrics are fetched from LRCLIB by track title and artist — the same information any lyrics lookup needs.</p>
+          </details>
+          <details>
+            <summary>Update check</summary>
+            <p>Barivy reads one small text file — the latest version number, a download link, and the changelog. Free checks only when you click it in the tray; Pro can check once a day.</p>
+          </details>
+          <details>
+            <summary>Your license key</summary>
+            <p>Validated offline with public-key cryptography on your own machine. It is never transmitted, and Barivy works fully offline once unlocked.</p>
+          </details>
+        </div>
+        <div>
+          <div class="sec-head" style="margin-bottom:22px">
+            <h2>FAQ</h2>
+            <p>What people ask before downloading.</p>
+          </div>
+          <details>
+            <summary>What does Barivy need to run?</summary>
+            <p>Windows 10 or 11, 64-bit, and the .NET 10 Desktop Runtime (a free Microsoft download, installed once). Barivy itself installs from <span class="mono" style="font-size:13.5px">BarivySetup.exe</span> — just download it and run it.</p>
+          </details>
+          <details>
+            <summary>Is the free version limited in time?</summary>
+            <p>No. Free is free forever, with the full notch, music, todo, shelf, and color tools. Pro only deepens specific features — the split is in the table above.</p>
+          </details>
+          <details>
+            <summary>Which music players does it follow?</summary>
+            <p>Anything Windows itself can see as a media session — Spotify, browsers, and most desktop players. Lyrics come from LRCLIB when a synced match exists for the track.</p>
+          </details>
+          <details>
+            <summary>Will it get in the way of games?</summary>
+            <p>Turn on game mode from the tray and hover-expansion pauses while a fullscreen app or game has focus. The tray menu and pin lock still work as usual.</p>
+          </details>
+          <details>
+            <summary>How do updates work?</summary>
+            <p>Download the new <span class="mono" style="font-size:13.5px">BarivySetup.exe</span> and run it over your existing install. Your settings, todos, and license live in <span class="mono" style="font-size:13.5px">%LocalAppData%\Barivy</span>, untouched by the update.</p>
+          </details>
+          <details>
+            <summary>How do I uninstall it?</summary>
+            <p>Uninstall Barivy from Windows Settings, under Apps — that removes the app and its Start Menu shortcut. Your data in <span class="mono" style="font-size:13.5px">%LocalAppData%\Barivy</span> is kept, so a reinstall picks up right where you left off; delete that folder yourself only if you want every trace gone.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <div class="download wrap" id="download">
+      <span class="brand-mark" style="width:52px;height:52px;border-radius:14px;margin:0 auto 20px" aria-hidden="true">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M6 3v18" stroke="#d2a679" stroke-width="2.6" stroke-linecap="round"/><circle cx="14.5" cy="14.5" r="5.6" stroke="#d2a679" stroke-width="2.6"/></svg>
+      </span>
+      <h2>Put Barivy on your screen</h2>
+      <p>Free download, no account. Download <span class="mono" style="font-size:14px">BarivySetup.exe</span> (about 7 MB) and run it — it installs per user with no admin rights, adds a Start Menu shortcut, and uninstalls cleanly from Windows Settings. Your data in <span class="mono" style="font-size:14px">%LocalAppData%\Barivy</span> is kept when you uninstall.</p>
+      <a class="btn big" href="https://github.com/misavondo86/barivy/releases/download/v1.0/BarivySetup.exe">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4.5-4.5M12 15 7.5 10.5M4 20h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Download Barivy 1.0 — BarivySetup.exe · ≈ 7 MB
+      </a>
+      <p class="hero-meta" style="margin-top:18px">Windows 10 / 11 · 64-bit · Requires .NET 10 Desktop Runtime · First run shows the SmartScreen notice — <a href="#smartscreen" style="color:var(--gold-strong);font-weight:700">here is why, and the three steps past it</a></p>
+    </div>
+
+    <footer>
+      <div class="wrap foot-in">
+        <span><b style="color:var(--ink)">barivy</b> — a dynamic notch for Windows</span>
+        <span class="sp">Version 1.0 · Built with WPF &amp; C# · © 2026 Barivy</span>
+      </div>
+      <div class="wrap">
+        <p class="foot-note">Barivy is built independently in WPF and C# by Daniel. This site and its repository contain only the Barivy website, the Barivy logo, <span class="mono">version.txt</span> for update checks, and release downloads — they do <b>not</b> contain Barivy's source code, and Barivy is <b>not</b> a fork of any other project.</p>
+      </div>
+    </footer>
+
+    <script>
+      (function () {
+        "use strict";
+        var notch = document.getElementById("notch");
+        var desktop = document.getElementById("desktop");
+        var fs = document.getElementById("fsLyrics");
+
+        var pillBtn = document.getElementById("pillBtn");
+        function openNotch() { notch.classList.add("open"); pillBtn.setAttribute("aria-expanded", "true"); }
+        function closeNotch() {
+          if (fs.classList.contains("on")) return;
+          notch.classList.remove("open");
+          pillBtn.setAttribute("aria-expanded", "false");
+        }
+        notch.addEventListener("mouseenter", openNotch);
+        desktop.addEventListener("mouseleave", closeNotch);
+        notch.addEventListener("click", function () {
+          if (!notch.classList.contains("open")) openNotch();
+        });
+        document.querySelector(".notch-body").addEventListener("click", function (e) { e.stopPropagation(); });
+
+        /* page cycling — the real app moves between pages with the edge arrows */
+        var pageOrder = ["music", "todo", "shelf", "colors", "palette", "imgpal", "notes"];
+        var pageEls = document.querySelectorAll(".page");
+        var pageIdx = 0;
+        function showPage(i) {
+          pageIdx = ((i % pageOrder.length) + pageOrder.length) % pageOrder.length;
+          pageEls.forEach(function (p) { p.classList.toggle("on", p.getAttribute("data-page") === pageOrder[pageIdx]); });
+          notch.setAttribute("data-page", pageOrder[pageIdx]);
+        }
+        document.getElementById("navPrev").addEventListener("click", function (e) { e.stopPropagation(); showPage(pageIdx - 1); });
+        document.getElementById("navNext").addEventListener("click", function (e) { e.stopPropagation(); showPage(pageIdx + 1); });
+
+        /* collapsed pill clock */
+        var pillTime = document.getElementById("pillTime");
+        function tickClock() {
+          var d = new Date();
+          pillTime.textContent = ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
+        }
+        tickClock();
+        setInterval(tickClock, 20000);
+
+        /* music playback simulation */
+        var playing = false, cur = 0, TOTAL = 204, timer = null;
+        var playBtn = document.getElementById("playBtn");
+        var playIco = document.getElementById("playIco");
+        var fsPlayIco = document.getElementById("fsPlayIco");
+        var progFill = document.getElementById("progFill");
+        var fsProg = document.getElementById("fsProg");
+        var tCur = document.getElementById("tCur");
+        var fsCur = document.getElementById("fsCur");
+        var lyricLines = document.querySelectorAll("#lyricsBox p");
+        var fsLines = document.querySelectorAll("#fsLines p");
+        var lyrTrack = document.getElementById("lyrTrack");
+        var fsTrack = document.getElementById("fsTrack");
+        var ICON_PLAY = '<path d="M7 4.8v14.4L19.5 12z"/>';
+        var ICON_PAUSE = '<path d="M6.5 4.5h4v15h-4zM13.5 4.5h4v15h-4z"/>';
+
+        function fmt(s) { return Math.floor(s / 60) + ":" + ("0" + (s % 60)).slice(-2); }
+        function markLines(list, idx) {
+          list.forEach(function (p, i) {
+            p.classList.toggle("now", i === idx);
+            p.classList.toggle("near", Math.abs(i - idx) === 1);
+          });
+        }
+        function positionTrack(track, lines, idx) {
+          if (!track || !lines.length || !lines[idx]) return;
+          var view = track.parentElement;
+          if (!view || view.clientHeight === 0) return;
+          var line = lines[idx];
+          var y = view.clientHeight / 2 - (line.offsetTop + line.offsetHeight / 2);
+          track.style.transform = "translateY(" + y + "px)";
+        }
+        function render() {
+          var pct = (cur / TOTAL) * 100;
+          progFill.style.width = pct + "%";
+          fsProg.style.width = pct + "%";
+          tCur.textContent = fmt(cur);
+          fsCur.textContent = fmt(cur);
+          var idx = Math.floor(cur / (TOTAL / lyricLines.length)) % lyricLines.length;
+          markLines(lyricLines, idx);
+          markLines(fsLines, idx % fsLines.length);
+          positionTrack(lyrTrack, lyricLines, idx);
+          positionTrack(fsTrack, fsLines, idx % fsLines.length);
+        }
+        function setPlaying(on) {
+          playing = on;
+          document.body.classList.toggle("playing", on);
+          playIco.innerHTML = on ? ICON_PAUSE : ICON_PLAY;
+          if (fsPlayIco) fsPlayIco.innerHTML = on ? ICON_PAUSE : ICON_PLAY;
+          if (on) {
+            timer = setInterval(function () { cur = (cur + 3) % TOTAL; render(); }, 500);
+          } else {
+            clearInterval(timer);
+          }
+        }
+        playBtn.addEventListener("click", function (e) { e.stopPropagation(); setPlaying(!playing); });
+        document.getElementById("fsPlay").addEventListener("click", function () { setPlaying(!playing); });
+        function skip(delta) { cur = (((cur + delta) % TOTAL) + TOTAL) % TOTAL; render(); }
+        document.getElementById("prevBtn").addEventListener("click", function () { skip(-15); });
+        document.getElementById("nextBtn").addEventListener("click", function () { skip(15); });
+        document.getElementById("fsPrev").addEventListener("click", function () { skip(-15); });
+        document.getElementById("fsNext").addEventListener("click", function () { skip(15); });
+        document.getElementById("progTrack").addEventListener("click", function (e) {
+          var r = this.getBoundingClientRect();
+          if (r.width > 0) { cur = Math.round(((e.clientX - r.left) / r.width) * TOTAL); render(); }
+        });
+        var repeatBtn = document.getElementById("repeatBtn");
+        repeatBtn.addEventListener("click", function () { repeatBtn.classList.toggle("on"); });
+        var micBtn = document.getElementById("micBtn");
+        micBtn.addEventListener("click", function () {
+          var on = micBtn.classList.toggle("on");
+          notch.setAttribute("data-lyrics", on ? "on" : "off");
+          if (on) render();
+        });
+        var volRange = document.getElementById("volRange");
+        var lastVol = 70;
+        document.getElementById("volBtn").addEventListener("click", function () {
+          if (Number(volRange.value) > 0) { lastVol = volRange.value; volRange.value = 0; }
+          else { volRange.value = lastVol; }
+        });
+        render();
+
+        /* fullscreen lyrics */
+        document.getElementById("fsBtn").addEventListener("click", function (e) {
+          e.stopPropagation();
+          fs.classList.add("on"); fs.setAttribute("aria-hidden", "false");
+          render();
+          if (!playing) setPlaying(true);
+        });
+        document.getElementById("fsClose").addEventListener("click", function () {
+          fs.classList.remove("on"); fs.setAttribute("aria-hidden", "true");
+        });
+
+        /* todo — tick to complete, add your own, clear the done ones */
+        var todoList = document.getElementById("todoList");
+        var todoInput = document.getElementById("todoInput");
+        var dueBtn = document.getElementById("dueBtn");
+        dueBtn.addEventListener("click", function () { dueBtn.classList.toggle("on"); });
+        todoList.addEventListener("click", function (e) {
+          var tick = e.target.closest ? e.target.closest(".tick") : null;
+          if (!tick) return;
+          var item = tick.closest(".todo-item");
+          item.classList.toggle("done");
+          tick.innerHTML = item.classList.contains("done") ? "✓" : "";
+        });
+        function addTodo() {
+          var name = todoInput.value.trim();
+          if (!name) return;
+          var item = document.createElement("div");
+          item.className = "todo-item";
+          item.innerHTML = '<button type="button" class="tick" aria-label="Mark done"></button><span class="tname"></span>' +
+            (dueBtn.classList.contains("on") ? '<span class="due"><b>Due today</b>19:30</span>' : "");
+          item.querySelector(".tname").textContent = name;
+          todoList.appendChild(item);
+          todoInput.value = "";
+        }
+        document.getElementById("addBtn").addEventListener("click", addTodo);
+        todoInput.addEventListener("keydown", function (e) { if (e.key === "Enter") addTodo(); });
+        document.getElementById("clearDoneBtn").addEventListener("click", function () {
+          todoList.querySelectorAll(".todo-item.done").forEach(function (it) { it.remove(); });
+        });
+
+        /* copy helpers */
+        function copyText(text, noteEl) {
+          function done() { if (noteEl) noteEl.textContent = "Copied " + text; }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done, function () { if (noteEl) noteEl.textContent = text; });
+          } else if (noteEl) { noteEl.textContent = text; }
+        }
+
+        /* color picker page */
+        var cpStatus = document.getElementById("cpStatus");
+        var cpSwatch = document.getElementById("cpSwatch");
+        var cpHex = document.getElementById("cpHex");
+        var cpRgb = document.getElementById("cpRgb");
+        var cpRecent = document.getElementById("cpRecent");
+        var currentColor = "#FBFBFB";
+        function hexToRgb(hex) {
+          var n = parseInt(hex.slice(1), 16);
+          return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+        }
+        function setColor(hex, announce) {
+          currentColor = hex.toUpperCase();
+          cpSwatch.style.background = currentColor;
+          cpHex.textContent = currentColor;
+          var rgb = hexToRgb(currentColor);
+          cpRgb.textContent = rgb[0] + ", " + rgb[1] + ", " + rgb[2];
+          if (announce) copyText(currentColor, cpStatus);
+          setPaletteBase(currentColor);
+        }
+        function addRecent(hex) {
+          var b = document.createElement("button");
+          b.type = "button";
+          b.style.background = hex;
+          b.setAttribute("aria-label", "Copy " + hex);
+          b.addEventListener("click", function () { setColor(hex, true); });
+          cpRecent.insertBefore(b, cpRecent.firstChild);
+          while (cpRecent.children.length > 6) cpRecent.removeChild(cpRecent.lastChild);
+        }
+        var pickCycle = ["#D2A679", "#5A8CA0", "#E8836B", "#7D9B6A", "#7FB2E0", "#C5A3E0"];
+        var pickIdx = 0;
+        document.getElementById("cpPick").addEventListener("click", function () {
+          var hex = pickCycle[pickIdx % pickCycle.length];
+          pickIdx++;
+          setColor(hex, true);
+          addRecent(hex);
+        });
+        document.getElementById("cpClear").addEventListener("click", function () {
+          cpStatus.textContent = "";
+          cpRecent.innerHTML = "";
+        });
+        var themeName = document.getElementById("themeName");
+        document.querySelectorAll("#themeCircles button").forEach(function (b) {
+          b.addEventListener("click", function () {
+            document.querySelectorAll("#themeCircles button").forEach(function (x) { x.classList.remove("on"); });
+            b.classList.add("on");
+            themeName.textContent = b.getAttribute("data-name");
+            notch.style.setProperty("--acc", b.getAttribute("data-color"));
+          });
+        });
+        document.getElementById("useThemeBtn").addEventListener("click", function () {
+          document.querySelectorAll("#themeCircles button").forEach(function (x) { x.classList.remove("on"); });
+          themeName.textContent = "Custom";
+          notch.style.setProperty("--acc", currentColor);
+        });
+        var bgName = document.getElementById("bgName");
+        document.querySelectorAll("#bgGrid button").forEach(function (b) {
+          b.addEventListener("click", function () {
+            document.querySelectorAll("#bgGrid button").forEach(function (x) { x.classList.remove("on"); });
+            b.classList.add("on");
+            bgName.textContent = b.getAttribute("data-label");
+            notch.setAttribute("data-bg", b.getAttribute("data-bg"));
+          });
+        });
+
+        /* palette generator — shades and harmonies of the "From" color */
+        function hslToHex(h, s, l) {
+          s /= 100; l /= 100;
+          var k = function (n) { return (n + h / 30) % 12; };
+          var a = s * Math.min(l, 1 - l);
+          var f = function (n) { return l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1))); };
+          var to = function (x) { return ("0" + Math.round(x * 255).toString(16)).slice(-2); };
+          return ("#" + to(f(0)) + to(f(8)) + to(f(4))).toUpperCase();
+        }
+        function hexToHsl(hex) {
+          var rgb = hexToRgb(hex);
+          var r = rgb[0] / 255, g = rgb[1] / 255, b = rgb[2] / 255;
+          var max = Math.max(r, g, b), min = Math.min(r, g, b);
+          var h = 0, s = 0, l = (max + min) / 2;
+          if (max !== min) {
+            var d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) * 60;
+            else if (max === g) h = ((b - r) / d + 2) * 60;
+            else h = ((r - g) / d + 4) * 60;
+          }
+          return [h, s * 100, l * 100];
+        }
+        var palRow = document.getElementById("palRow");
+        var palFrom = document.getElementById("palFrom");
+        var palBase = "#FBFBFB", palMode = "mono", palColors = [];
+        var palFromTimer = null;
+        function renderPal(cols) {
+          palColors = cols;
+          palRow.innerHTML = "";
+          cols.forEach(function (c) {
+            var b = document.createElement("button");
+            b.type = "button"; b.className = "psw";
+            b.innerHTML = "<i></i><span></span>";
+            b.querySelector("i").style.background = c;
+            b.querySelector("span").textContent = c;
+            b.addEventListener("click", function () {
+              copyText(c, palFrom);
+              clearTimeout(palFromTimer);
+              palFromTimer = setTimeout(function () { palFrom.textContent = "From " + palBase; }, 1800);
+            });
+            palRow.appendChild(b);
+          });
+        }
+        function buildPalette() {
+          var hsl = hexToHsl(palBase);
+          var h = hsl[0], s = hsl[1], l = hsl[2];
+          function C(hh, ss, ll) {
+            return hslToHex(((hh % 360) + 360) % 360, Math.min(100, Math.max(0, ss)), Math.min(97, Math.max(4, ll)));
+          }
+          var cols = [];
+          if (palMode === "mono") {
+            var ms = s < 8 ? 0 : s;
+            [-24, -11, 0, -5, -5].forEach(function (d) { cols.push(C(h, ms, l + d)); });
+          } else if (palMode === "comp") {
+            cols = [C(h, s, l - 18), C(h, s, l), C(h, s, l + 14), C(h + 180, s, l - 8), C(h + 180, s, l + 12)];
+          } else {
+            [-28, -14, 0, 16, 32].forEach(function (d, i) { cols.push(C(h + d, s, l - 16 + i * 8)); });
+          }
+          renderPal(cols);
+        }
+        function setPaletteBase(hex) {
+          palBase = hex.toUpperCase();
+          palFrom.textContent = "From " + palBase;
+          buildPalette();
+        }
+        document.querySelectorAll("#palModes button[data-mode]").forEach(function (b) {
+          b.addEventListener("click", function () {
+            document.querySelectorAll("#palModes button").forEach(function (x) { x.classList.remove("on"); });
+            b.classList.add("on");
+            palMode = b.getAttribute("data-mode");
+            buildPalette();
+          });
+        });
+        /* custom palette slots */
+        var palSlots = document.querySelectorAll("#palSlots .slot");
+        function saveToSlot() {
+          for (var i = 0; i < palSlots.length; i++) {
+            if (!palSlots[i].classList.contains("filled")) {
+              var slot = palSlots[i];
+              slot.classList.add("filled");
+              slot.textContent = "";
+              slot.style.background = "linear-gradient(90deg," + palColors.map(function (c, j) {
+                return c + " " + (j * 20) + "% " + ((j + 1) * 20) + "%";
+              }).join(",") + ")";
+              slot.setAttribute("data-colors", palColors.join(","));
+              slot.title = document.getElementById("palName").value.trim() || "Custom palette";
+              return;
+            }
+          }
+        }
+        document.getElementById("palSave").addEventListener("click", saveToSlot);
+        document.getElementById("palSaveCustom").addEventListener("click", saveToSlot);
+        document.getElementById("palClearSlots").addEventListener("click", function () {
+          palSlots.forEach(function (slot) {
+            slot.classList.remove("filled");
+            slot.style.background = "";
+            slot.textContent = "+";
+            slot.removeAttribute("data-colors");
+            slot.title = "";
+          });
+          document.getElementById("palName").value = "";
+        });
+        palSlots.forEach(function (slot) {
+          slot.addEventListener("click", function () {
+            var cols = slot.getAttribute("data-colors");
+            if (cols) renderPal(cols.split(","));
+          });
+        });
+        buildPalette();
+
+        /* shelf — drop real files onto the mockup and they land as tiles */
+        var shelfDrop = document.getElementById("shelfDrop");
+        var shelfGrid = document.getElementById("shelfGrid");
+        var shelfEmpty = document.getElementById("shelfEmpty");
+        var shelfCount = document.getElementById("shelfCount");
+        var shelfFile = document.getElementById("shelfFile");
+        function shelfSync() {
+          var n = shelfGrid.children.length;
+          shelfCount.textContent = n + (n === 1 ? " item" : " items");
+          shelfEmpty.style.display = n ? "none" : "";
+        }
+        function shelfAdd(files) {
+          Array.prototype.forEach.call(files, function (f) {
+            var tile = document.createElement("div");
+            tile.className = "tile";
+            var ext = (f.name.split(".").pop() || "FILE").toUpperCase();
+            if (ext === f.name.toUpperCase() || ext.length > 5) ext = "FILE";
+            tile.innerHTML = '<span class="ext"></span><span></span>';
+            tile.querySelector(".ext").textContent = ext;
+            tile.querySelector("span:last-child").textContent = f.name;
+            shelfGrid.appendChild(tile);
+          });
+          shelfSync();
+        }
+        shelfDrop.addEventListener("click", function () { shelfFile.click(); });
+        shelfFile.addEventListener("change", function () { shelfAdd(shelfFile.files); shelfFile.value = ""; });
+        ["dragover", "dragenter"].forEach(function (ev) {
+          shelfDrop.addEventListener(ev, function (e) { e.preventDefault(); shelfDrop.classList.add("drag"); });
+        });
+        ["dragleave", "drop"].forEach(function (ev) {
+          shelfDrop.addEventListener(ev, function (e) { e.preventDefault(); shelfDrop.classList.remove("drag"); });
+        });
+        shelfDrop.addEventListener("drop", function (e) {
+          if (e.dataTransfer && e.dataTransfer.files.length) shelfAdd(e.dataTransfer.files);
+        });
+        document.getElementById("clearMissingBtn").addEventListener("click", function () {
+          shelfGrid.querySelectorAll(".tile.missing").forEach(function (t) { t.remove(); });
+          shelfSync();
+        });
+
+        /* image palette — pulls five dominant colors out of a picture you pick or drop */
+        var ipFile = document.getElementById("ipFile");
+        var ipResult = document.getElementById("ipResult");
+        var ipEmpty = document.getElementById("ipEmpty");
+        var ipStatus = document.getElementById("ipStatus");
+        var ipPage = document.querySelector('.page[data-page="imgpal"]');
+        document.getElementById("ipPick").addEventListener("click", function () { ipFile.click(); });
+        ipFile.addEventListener("change", function () {
+          if (ipFile.files && ipFile.files[0]) extractColors(ipFile.files[0]);
+          ipFile.value = "";
+        });
+        ["dragover", "dragenter"].forEach(function (ev) {
+          ipPage.addEventListener(ev, function (e) { e.preventDefault(); });
+        });
+        ipPage.addEventListener("drop", function (e) {
+          e.preventDefault();
+          if (e.dataTransfer && e.dataTransfer.files.length) extractColors(e.dataTransfer.files[0]);
+        });
+        function extractColors(file) {
+          if (!file || file.type.indexOf("image/") !== 0) { ipStatus.textContent = "That file is not an image"; return; }
+          var url = URL.createObjectURL(file);
+          var img = new Image();
+          img.onload = function () {
+            try {
+              var size = 48;
+              var cv = document.createElement("canvas");
+              cv.width = size; cv.height = size;
+              var ctx = cv.getContext("2d");
+              ctx.drawImage(img, 0, 0, size, size);
+              var data = ctx.getImageData(0, 0, size, size).data;
+              var buckets = {};
+              for (var i = 0; i < data.length; i += 16) {
+                if (data[i + 3] < 200) continue;
+                var key = ((data[i] & 0xE0) << 16) | ((data[i + 1] & 0xE0) << 8) | (data[i + 2] & 0xE0);
+                if (!buckets[key]) buckets[key] = { n: 0, r: 0, g: 0, b: 0 };
+                buckets[key].n++;
+                buckets[key].r += data[i]; buckets[key].g += data[i + 1]; buckets[key].b += data[i + 2];
+              }
+              var sorted = Object.keys(buckets).map(function (k) { return buckets[k]; })
+                .sort(function (a, b) { return b.n - a.n; });
+              var cols = [];
+              for (var j = 0; j < sorted.length && cols.length < 5; j++) {
+                var bk = sorted[j];
+                var hex = ("#" + [bk.r / bk.n, bk.g / bk.n, bk.b / bk.n].map(function (v) {
+                  return ("0" + Math.round(v).toString(16)).slice(-2);
+                }).join("")).toUpperCase();
+                if (cols.indexOf(hex) === -1) cols.push(hex);
+              }
+              ipResult.innerHTML = "";
+              cols.forEach(function (c) {
+                var b = document.createElement("button");
+                b.type = "button"; b.className = "psw";
+                b.innerHTML = "<i></i><span></span>";
+                b.querySelector("i").style.background = c;
+                b.querySelector("span").textContent = c;
+                b.addEventListener("click", function () { copyText(c, ipStatus); });
+                ipResult.appendChild(b);
+              });
+              ipEmpty.style.display = cols.length ? "none" : "";
+              if (cols.length) ipStatus.textContent = file.name;
+            } catch (err) {
+              ipStatus.textContent = "Could not read that image";
+            }
+            URL.revokeObjectURL(url);
+          };
+          img.onerror = function () { ipStatus.textContent = "Could not read that image"; URL.revokeObjectURL(url); };
+          img.src = url;
+        }
+
+        /* quick notes */
+        document.getElementById("notesClear").addEventListener("click", function () {
+          document.getElementById("notesArea").value = "";
+        });
+
+        /* the mockup starts collapsed, like the real Barivy on launch —
+           it only expands when the visitor hovers over or taps the pill
+           (see the mouseenter / click handlers above), and collapses
+           again when the pointer leaves the desktop, as before */
+      })();
+    </script>
+  </body>
+</html>
