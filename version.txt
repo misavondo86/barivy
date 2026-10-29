@@ -1,4 +1,19 @@
 1.1
 https://github.com/misavondo86/barivy/releases/download/v1.1/BarivySetup.exe
-
-
+- System notifications (CapsLock, power, Wi-Fi, Bluetooth) are now hidden while a fullscreen app or Game mode is active, instead of popping over games.
+- First-run guide for new users, reopenable from the tray.
+- Custom background color (Pro; Free can preview it until leaving the Colors page).
+- Todo priorities (Pro): High, Medium, and Low, sorted by priority then due date.
+- Notch text size (Pro, from the tray): Small, Normal, and Large.
+- Multiple notes (Free up to 3, Pro unlimited).
+- Custom Shelf labels (Free up to 3 labeled tiles, Pro unlimited). Labels are display only and never rename your files.
+- Palette: pick a color directly from the Palette page, random palette with the dice button, and now enter your own HEX color as the palette base or into a custom palette slot.
+- Manual weather location (Pro), with Use IP to return to automatic location.
+- Shelf virtual folders (Free up to 3 folders, Pro unlimited): group tiles without moving any files. Deleting a folder returns its tiles to the main Shelf.
+- Lyrics saved offline: songs played before now show their lyrics even with the internet off (Free up to 20 songs, Pro unlimited).
+- Fullscreen lyrics: click a line to jump to it, with a cleaner modern look, sharp tiered-dim lyrics instead of blur.
+- Notch lyrics: click a line to jump to it, too.
+- Collapsed pill: song icon removed for a cleaner look.
+- Dark tray menu with gold hover, and no Expand item.
+- Fixes: notification corner radius, pill lyric only while playing, and Palette header Save button clipping.
+Barivy Pro is still unlocked manually. DM Daniel on Telegram @mvdoooo or Instagram @misavondo_.
